@@ -1,0 +1,390 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Custom YouTube Playlist Player</title>
+  
+    <script>console.log("Script loaded...");
+  </script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #F4F1DE;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      
+    }
+    
+    #heading{
+      background: red;
+    }
+    
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 10px 20px 20px 20px;
+    }
+
+    /* Video Player */
+    .video-container {
+      position: relative;
+      flex: 1 1 600px;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      background: #676FCD;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #player {
+      width: 100%;
+      height: 100%;
+    }
+
+    .click-block {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      z-index: 5;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 5px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+      background: rgba(0,0,0,0.6);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .controls button, .controls select {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .controls button:hover, .controls select:hover {
+      background: #676FCD;
+    }
+
+    /* Seekbar full width */
+    #seekBar {
+      flex: 1;
+      height: 6px;
+      cursor: pointer;
+    }
+
+    /* Playlist */
+    .playlist {
+      flex: 1 1 250px;
+      max-width: 300px;
+      background: #676FCD;
+      border-radius: 10px;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 400px;
+      display: block; 
+      
+      /* ✅ हमेशा दिखेगा */
+    }
+
+    .playlist h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: white;
+      background: blue;
+      border-radius: 12px;
+    }
+
+    .playlist-item {
+      padding: 8px;
+      margin-bottom: 6px;
+      background: #2D80BE;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .playlist-item:hover {
+      background: #35610F;
+    }
+
+    .playlist-item.active {
+      background: blanched#131B6Balmond;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="heading">🎬 World Map Playlist</h2>
+
+  <div class="container">
+    <!-- Video Player -->
+    <div class="video-container" id="videoContainer">
+      <div id="player"></div>
+      <div class="click-block"></div>
+
+      <div class="controls">
+        <input type="range" id="seekBar" min="0" max="100" value="0">
+        <button id="backward">⏪</button>
+        <button id="playPauseBtn">▶️</button>
+        <button id="forward">⏩</button>
+        <select id="qualityControl"></select>
+                <!-- ✅ Speed Control -->
+        <select id="speedControl">
+          <option value="0.25">0.25x</option>
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="1.75">1.75x</option>
+        </select>
+        
+        <button id="fullscreenBtn">⛶</button>
+      </div>
+    </div>
+
+    <!-- Playlist -->
+    <div class="playlist" id="playlist">
+      <h3>📜 Playlist Vedios</h3>
+    </div>
+  </div>
+
+  <!-- YouTube API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    let seekBar = null;
+    let updateInterval;
+    let currentIndex = 0;
+    let isPlaying = false;
+
+    // 🔹 Playlist Data
+    const videos = [
+{ id: "", title: "Lec-1 " },
+{ id: "ipxslw0FdKY", title: "Lec-2 हिन्दी साहित्य " },
+{ id: "PmaPOrVDNCo", title: "Lec-3 हिन्दी साहित्य" },
+{ id: "bL70uhX23Bg", title: "Lec-4 हिन्दी साहित्य" },
+{ id: "udgknJWAt78", title: "Lec-5 हिन्दी साहित्य" },
+{ id: "naqlhu5N488", title: "Lec-6 हिन्दी साहित्य" },
+{ id: "qc9TGy0Q7s0", title: "Lec-7 हिन्दी साहित्य" },
+{ id: "jXWPrFolM30", title: "Lec-8 हिन्दी साहित्य" },
+{ id: "4VlwoSs9eWI", title: "Lec-9 हिन्दी साहित्य" },
+{ id: "RkGATr2PGV4", title: "Lec-10 हिन्दी साहित्य" },
+{ id: "3jWZycVBOsY", title: "Lec-11 हिन्दी साहित्य" },
+{ id: "g1ANe4CJKcU", title: "Lec-12 हिन्दी साहित्य" },
+{ id: "L-4pZuANZCE", title: "Lec-13 हिन्दी साहित्य" },
+{ id: "jVXeFe0Fgj0", title: "Lec-14 हिन्दी साहित्य" },
+{ id: "WKf87efMhkU", title: "Lec-15 हिन्दी साहित्य" },
+{ id: "EdoAvFT993w", title: "Lec-16 हिन्दी साहित्य" },
+{ id: "Tc_Ifq1fnXw", title: "Lec-17 हिन्दी साहित्य" },
+{ id: "yUjvweC37VU", title: "Lec-18 हिन्दी साहित्य" },
+{ id: "rmK0Lcnlzb0", title: "Lec-19 हिन्दी साहित्य" },
+{ id: "yGtaNKIAbOU", title: "Lec-20 हिन्दी साहित्य" },
+{ id: "Usc3Nz4IxqY", title: "Lec-21 हिन्दी साहित्य" },
+{ id: "8jOhK0AF9Dc", title: "Lec-22 हिन्दी साहित्य" },
+{ id: "t7YxOV1Nr98", title: "Lec-23 हिन्दी साहित्य" },
+{ id: "HkP7076LnCY", title: "Lec-24 हिन्दी साहित्य" },
+{ id: "1_LKpUYP6yo", title: "Lec-25 हिन्दी साहित्य" },
+{ id: "c7_w0OgMxRQ", title: "Lec-26 हिन्दी साहित्य" },
+{ id: "lUpkc3H9VuI", title: "Lec-27 हिन्दी साहित्य" },
+{ id: "ni0M8uPacqU", title: "Lec-28 हिन्दी साहित्य" },
+{ id: "tnJa6tV3E3g", title: "Lec-29 हिन्दी साहित्य" },
+{ id: "y11XB8UWjJk", title: "Lec-30 हिन्दी साहित्य" },
+{ id: "x6qJKt2Bvbw", title: "Lec-31 हिन्दी साहित्य" },
+{ id: "DDla9pQiXuc", title: "Lec-32 हिन्दी साहित्य" },
+{ id: "2cL1CslzPRQ", title: "Lec-33 हिन्दी साहित्य" },
+{ id: "50VF1-x42i4", title: "Lec-34 हिन्दी साहित्य" },
+{ id: "DZtRMLcnLU4", title: "Lec-35 हिन्दी साहित्य" },
+{ id: "Pph2ewZTYIQ", title: "Lec-36 हिन्दी साहित्य" },
+{ id: "bb4h50rf1K8", title: "Lec-37 हिन्दी साहित्य" },
+{ id: "YsrHQmbe9zk", title: "Lec-38 हिन्दी साहित्य" },
+{ id: "DqO9CONrMzg", title: "Lec-39 हिन्दी साहित्य" },
+{ id: "gSisg3rVGRM", title: "Lec-40 हिन्दी साहित्य" },
+{ id: "pJILWGR6x20", title: "Lec-41 हिन्दी साहित्य" },
+{ id: "8AyDxpAzAz8", title: "Lec-42 हिन्दी साहित्य" },
+{ id: "UjS9288QOwo", title: "Lec-43 हिन्दी साहित्य" },
+{ id: "HdMAUY9NGd0", title: "Lec-44 हिन्दी साहित्य" },
+{ id: "82elUtx2J3k", title: "Lec-45 हिन्दी साहित्य" },
+{ id: "4NXvA3ekXAk", title: "Lec-46 हिन्दी साहित्य" },
+{ id: "6gvzWe7x40s", title: "Lec-47 हिन्दी साहित्य" },
+{ id: "WtXRs9Q3Dvk", title: "Lec-48 हिन्दी साहित्य" },
+{ id: "KpG12esYo1U", title: "Lec-49 हिन्दी साहित्य" },
+{ id: "6T4P5h2e7rA", title: "Lec-50 हिन्दी साहित्य" },
+{ id: "oIMQfwcujiQ", title: "Lec-51 हिन्दी साहित्य" },
+{ id: "60B_5vb-MOg", title: "Lec-52 हिन्दी साहित्य" },
+{ id: "pHmMm1ltbes", title: "Lec-53 हिन्दी साहित्य" },
+{ id: "Ry3qFTTFGfo", title: "Lec-54 हिन्दी साहित्य" },
+{ id: "AHxa-bANea4", title: "Lec-55 हिन्दी साहित्य" },
+{ id: "OyGBscCZIbs", title: "Lec-56 हिन्दी साहित्य" },
+{ id: "J7sGC387PVI", title: "Lec-57 हिन्दी साहित्य" },
+{ id: "", title: "Lec-58 हिन्दी साहित्य" },
+{ id: "", title: "Lec-59 हिन्दी साहित्य" },
+{ id: "", title: "Lec-60 हिन्दी साहित्य" },
+{ id: "", title: "Lec-61 हिन्दी साहित्य" },
+{ id: "", title: "Lec-62 हिन्दी साहित्य" },
+{ id: "", title: "Lec-63 हिन्दी साहित्य" },
+{ id: "", title: "Lec-64 हिन्दी साहित्य" },
+{ id: "", title: "Lec-65 हिन्दी साहित्य" },
+{ id: "", title: "Lec-66 हिन्दी साहित्य" },
+{ id: "", title: "Lec-67 हिन्दी साहित्य" },
+{ id: "", title: "Lec-68 हिन्दी साहित्य" },
+{ id: "", title: "Lec-69 हिन्दी साहित्य" },
+{ id: "", title: "Lec-70 हिन्दी साहित्य" },
+{ id: "", title: "Lec-71 हिन्दी साहित्य" },
+{ id: "", title: "Lec-72 हिन्दी साहित्य" },
+{ id: "", title: "Lec-73 हिन्दी साहित्य" },
+{ id: "", title: "Lec-74 हिन्दी साहित्य" }
+    ];
+    
+    console.log("Reached here - step 1");
+
+    
+    
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: videos[0].id,
+        playerVars: { 
+          'controls': 0, 
+          'rel': 0, 
+          'modestbranding': 1, 
+          'disablekb': 1,
+          'iv_load_policy': 3 
+        },
+        events: { 'onReady': onPlayerReady }
+      });
+    }
+
+    function onPlayerReady() {
+      buildPlaylist();
+
+      // PlayPause toggle
+      document.getElementById('playPauseBtn').onclick = () => {
+        if (isPlaying) {
+          player.pauseVideo();
+          document.getElementById('playPauseBtn').innerText = "▶️";
+        } else {
+          player.playVideo();
+          document.getElementById('playPauseBtn').innerText = "⏸";
+        }
+        isPlaying = !isPlaying;
+      };
+
+      // Forward
+      document.getElementById('forward').onclick = () => {
+        let t = player.getCurrentTime();
+        player.seekTo(t + 10, true);
+      };
+
+      // Backward
+      document.getElementById('backward').onclick = () => {
+        let t = player.getCurrentTime();
+        player.seekTo(t - 10, true);
+      };
+
+      // Seek bar
+      seekBar = document.getElementById('seekBar');
+      seekBar.addEventListener('input', () => {
+        let percent = seekBar.value;
+        let duration = player.getDuration();
+        player.seekTo(duration * (percent / 100), true);
+      });
+
+      updateInterval = setInterval(() => {
+        if (player && player.getDuration) {
+          let duration = player.getDuration();
+          let current = player.getCurrentTime();
+          if (duration > 0) {
+            seekBar.value = (current / duration) * 100;
+          }
+        }
+      }, 1000);
+
+      // Quality Control
+      document.getElementById('qualityControl').addEventListener('change', (e) => {
+        player.setPlaybackQuality(e.target.value);
+      });
+      setTimeout(loadQualityLevels, 2000);
+
+
+           // ✅ Speed Control
+      document.getElementById('speedControl').addEventListener('change', e => {
+        player.setPlaybackRate(parseFloat(e.target.value));
+      });
+      // Fullscreen
+      document.getElementById('fullscreenBtn').onclick = () => {
+        let container = document.getElementById("videoContainer");
+        if (container.requestFullscreen) container.requestFullscreen();
+        else if (container.mozRequestFullScreen) container.mozRequestFullScreen();
+        else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+        else if (container.msRequestFullscreen) container.msRequestFullscreen();
+      };
+    }
+
+    // Quality options लोड करना
+    function loadQualityLevels() {
+      let levels = player.getAvailableQualityLevels();
+      let select = document.getElementById("qualityControl");
+      select.innerHTML = "";
+
+      levels.forEach(level => {
+        let opt = document.createElement("option");
+        opt.value = level;
+        opt.text = level.toUpperCase();
+        select.appendChild(opt);
+      });
+
+      // Default auto
+      if (levels.includes("auto")) {
+        select.value = "auto";
+        player.setPlaybackQuality("360");
+      }
+    }
+
+    // Playlist बनाना
+    function buildPlaylist() {
+      const list = document.getElementById("playlist");
+      videos.forEach((video, index) => {
+        let item = document.createElement("div");
+        item.className = "playlist-item" + (index === currentIndex ? " active" : "");
+        item.innerText = video.title;
+        item.onclick = () => changeVideo(index);
+        list.appendChild(item);
+      });
+    }
+
+    // Video बदलना
+    function changeVideo(index) {
+      if (index < 0 || index >= videos.length) return;
+      currentIndex = index;
+      player.loadVideoById(videos[index].id);
+
+      // active highlight
+      document.querySelectorAll(".playlist-item").forEach((el, i) => {
+        el.classList.toggle("active", i === currentIndex);
+      });
+
+      document.getElementById('playPauseBtn').innerText = "⏸";
+      isPlaying = true;
+    }
+  </script>
+</body>
+</html>
