@@ -7,144 +7,8 @@
     <script>console.log("Script loaded...");
   </script>
   
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #F4F1DE;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      
-    }
-    
-    #heading{
-      background: red;
-    }
-    
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      padding: 10px 20px 20px 20px;
-    }
-
-    /* Video Player */
-    .video-container {
-      position: relative;
-      flex: 1 1 600px;
-      max-width: 800px;
-      aspect-ratio: 16 / 9;
-      background: #676FCD;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    #player {
-      width: 100%;
-      height: 100%;
-    }
-
-    .click-block {
-      position: absolute;
-      inset: 0;
-      background: transparent;
-      z-index: 5;
-      /* By default, it's clickable and blocks interaction. */
-    }
-    
-    /* NEW: Class to make the click-block inactive */
-    .click-block.unlocked {
-        pointer-events: none; /* Allows clicks to pass through to the player */
-        z-index: 1; /* Keep it low, but still over the player for some styles if needed */
-    }
-
-    .controls {
-      position: absolute;
-      bottom: 5px;
-      left: 0;
-      right: 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      z-index: 10;
-      background: rgba(0,0,0,0.6);
-      padding: 8px;
-      border-radius: 8px;
-    }
-
-    .controls button, .controls select {
-      padding: 4px 8px;
-      border: none;
-      border-radius: 4px;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .controls button:hover, .controls select:hover {
-      background: #676FCD;
-    }
-    
-    /* NEW: Style for the unlock button to make it stand out */
-    #unlockControlsBtn {
-        background: #FFD700; /* Gold color */
-        color: #333;
-        font-weight: bold;
-    }
-
-    /* Seekbar full width */
-    #seekBar {
-      flex: 1;
-      height: 6px;
-      cursor: pointer;
-    }
-
-    /* Playlist */
-    .playlist {
-      flex: 1 1 250px;
-      max-width: 300px;
-      background: #676FCD;
-      border-radius: 10px;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: 400px;
-      display: block; 
-      
-      /* ✅ हमेशा दिखेगा */
-    }
-
-    .playlist h3 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      color: white;
-      background: blue;
-      border-radius: 12px;
-    }
-
-    .playlist-item {
-      padding: 8px;
-      margin-bottom: 6px;
-      background: #2D80BE;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    .playlist-item:hover {
-      background: #35610F;
-    }
-
-    .playlist-item.active {
-      background: #131B6B; /* Changed from 'blanched#131B6Balmond' to a consistent blue */
-      color: #fff;
-    }
-  </style>
+  <link rel="stylesheet" href="https://nitish624.github.io/FREE-BATCH/player.css">
+  
 </head>
 <body>
   <h2 id="heading">🎬 Indian Map Playlist</h2>
@@ -194,73 +58,84 @@
     // 🔹 Playlist Data (kept for completeness)
     const videos = [
 // ... (your video data remains the same)
-{ id: "pDK9NpG91cs", title: "Video 1" },
-{ id: "uj4S8YLN8yE", title: "Video 2" },
-{ id: "nzsf-5QOuCo", title: "Video 3" },
-{ id: "KnsACbfPQTU", title: "Video 4" },
-{ id: "JIksVEQSNi8", title: "Video 5" },
-{ id: "P9j05ntv5e8", title: "Video 6" },
-{ id: "h0rwfRDy5xA", title: "Video 7" },
-{ id: "lZv1LIEjhDw", title: "Video 8" },
-{ id: "B3xaUeo_CIA", title: "Video 9" },
-{ id: "aeQ4iFhXXuQ", title: "Video 10" },
-{ id: "u_g4P7Dfq_0", title: "Video 11" },
-{ id: "rKfSFVROU8I", title: "Video 12" },
-{ id: "tAADKAKmrO4", title: "Video 13" },
-{ id: "mc72G3rRCIY", title: "Video 14" },
-{ id: "gn_O-NXswqw", title: "Video 15" },
-{ id: "m0oOoEtQLmU", title: "Video 16" },
-{ id: "9OZ2XsgwIN0", title: "Video 17" },
-{ id: "7tTg8XWzHS0", title: "Video 18" },
-{ id: "mR77cCSukmY", title: "Video 19" },
-{ id: "WS4-uItI2Qg", title: "Video 20" },
-{ id: "J7-cV8DDadM", title: "Video 21" },
-{ id: "ea4ukZkEHl8", title: "Video 22" },
-{ id: "-eRELkIndp8", title: "Video 23" },
-{ id: "TxVy6cAfyFQ", title: "Video 24" },
-{ id: "yshv2vy3wo4", title: "Video 25" },
-{ id: "LvGJgPITB1g", title: "Video 26" },
-{ id: "8dzfgt4Ha-s", title: "Video 27" }, 
-{ id: "wHcougm8kAQ", title: "Video 28" },
-{ id: "Ycos3yFZx_I", title: "Video 29" },
-{ id: "IVHot_giJls", title: "Video 30" },
-{ id: "3IafC-WPBKQ", title: "Video 31" },
-{ id: "rBRZ27DhyTQ", title: "Video 32" },
-{ id: "7stHUKOZyq4", title: "Video 33" },
-{ id: "79N-MfmQnFs", title: "Video 34" },
-{ id: "fAWwET92JjY", title: "Video 35" },
-{ id: "Xrz1fveu9M4", title: "Video 36" },
-{ id: "EGPHUF2BijM", title: "Video 37" },
-{ id: "s-dkr1WcuDM", title: "Video 38" },
-{ id: "lfwzsnR3Atk", title: "Video 39" },
-{ id: "lGQx6jCXikk", title: "Video 40" },
-{ id: "jIoardJdSeY", title: "Video 41" },
-{ id: "jOL4XpGXUJM", title: "Video 42" },
-{ id: "peqq9KVhQlE", title: "Video 43" },
-{ id: "MIqt08eG5nY", title: "Video 44" },
-{ id: "snXVGkuqXlk", title: "Video 45" },
-{ id: "Dcj7yU2LmiM", title: "Video 46" },
-{ id: "6hvaH_ZQRZQ", title: "Video 47" },
-{ id: "jrbOkDMoMOU", title: "Video 48" },
-{ id: "mTH20RInEy0", title: "Video 49" },
-{ id: "adPkLIfaQHY", title: "Video 50" },
-{ id: "eSxXx7jp41I", title: "Video 51" },
-{ id: "8Htxo7pwGrQ", title: "Video 52" },
-{ id: "14HUFRUDzT0", title: "Video 53" },
-{ id: "b1FobGu_k2w", title: "Video 54" }, 
-{ id: "pe38HwmvfZ4", title: "Video 55" },
-{ id: "S1BtXsjvK0Q", title: "Video 56" },
-{ id: "YmY3E4aNM7w", title: "Video 57" },
-{ id: "8I4CFkgQvYc", title: "Video 58" },
-{ id: "LuOhSuAxjaE", title: "Video 59" },
-{ id: "6k56i01qDVQ", title: "Video 60" },
-{ id: "3l1iDp2Q-G4", title: "Video 61" },
-{ id: "zZPmxfTqHRM", title: "Video 62" },
-{ id: "7N_phXQ67Fc", title: "Video 63" },
-{ id: "WDxCQxPLbuY", title: "Video 64" },
-{ id: "9bVT8lb16lQ", title: "Video 65" },
-{ id: "WW2K3zoDHSM", title: "Video 66" },
-{ id: "ZSW4g7Z_-xY", title: "Video 67" }
+{ id: "gbbdHY3M7Mc", title: "Lec-1 " },
+{ id: "8rCSXEPK_jU", title: "Lec-2 " },
+{ id: "HhFK2OLp7uA", title: "Lec-3 " },
+{ id: "GC1SNEBpb9E", title: "Lec-4 " },
+{ id: "HUI5wMNKsKI", title: "Lec-5 " },
+{ id: "fr5pvE0skcE", title: "Lec-6 " },
+{ id: "xmf1e-55WpA", title: "Lec-7 " },
+{ id: "LKuPAEtsUd8", title: "Lec-8 " },
+{ id: "2FNkZpKRpCI", title: "Lec-9 " },
+{ id: "hUbMUeAlb_g", title: "Lec-10 " },
+{ id: "CBwXAR8e8Xk", title: "Lec-11 " },
+{ id: "rOuVjWnjZqY", title: "Lec-12 " },
+{ id: "pqnbwnrGRNo", title: "Lec-13 " },
+{ id: "", title: "Lec-14 " },
+{ id: "ZrfnwBsQjsk", title: "Lec-15 " },
+{ id: "8Bw3D7a6Rek", title: "Lec-16 " },
+{ id: "ylak8bUmzis", title: "Lec-17 " },
+{ id: "tpjbZO-J13Y", title: "Lec-18 " },
+{ id: "BSsJv2Bf-ec", title: "Lec-19 " },
+{ id: "I9jWw5UoYBQ", title: "Lec-20 " },
+{ id: "rfjK-Z0fV88", title: "Lec-21 " },
+{ id: "t6VZawGgYJY", title: "Video 22" },
+{ id: "5mAZvpoBvdE", title: "Video 23" },
+{ id: "nUwwRaK9PNg", title: "Video 24" },
+{ id: "uuieKGq2HE0", title: "Video 25" },
+{ id: "pvc3pwpxFdI", title: "Video 26" },
+{ id: "NdcyRl-V_Ps", title: "Video 27" }, 
+{ id: "3sQSNIb0x4U", title: "Video 28" },
+{ id: "kbWROkEUbJU", title: "Video 29" },
+{ id: "pwfpK3WAD40", title: "Video 30" },
+{ id: "x_tRP0e-TD8", title: "Video 31" },
+{ id: "I5tH5HrfkRo", title: "Video 32" },
+{ id: "G0UE0aYSQsM", title: "Video 33" },
+{ id: "7Om0lCjMXzg", title: "Video 34" },
+{ id: "5y5LXk5nSuI", title: "Video 35" },
+{ id: "G3t34YuNd_k", title: "Video 36" },
+{ id: "UaN4TGKJjwY", title: "Video 37" },
+{ id: "VSitXoNZPfM", title: "Video 38" },
+{ id: "bbgnhz-hPQs", title: "Video 39" },
+{ id: "Vlw0LKhcro4", title: "Video 40" },
+{ id: "XdRn8qdv78I", title: "Video 41" },
+{ id: "xkHB65SS3q8", title: "Video 42" },
+{ id: "", title: "Video 43" },
+{ id: "", title: "Video 44" },
+{ id: "", title: "Video 45" },
+{ id: "", title: "Video 46" },
+{ id: "", title: "Video 47" },
+{ id: "6WAPDWjyTIc", title: "Video 48" },
+{ id: "eu4W7ujAfFc", title: "Video 49" },
+{ id: "AK-lHZe5cGo", title: "Video 50" },
+{ id: "uAG5xNwMDGo", title: "Video 51" },
+{ id: "hNJrYislrhw", title: "Video 52" },
+{ id: "9Z_vtYWVltc", title: "Video 53" },
+{ id: "fhHZb9FnkOg", title: "Video 54" }, 
+{ id: "Psct1MHjyC0", title: "Video 55" },
+{ id: "AVpaNSpE6OU", title: "Video 56" },
+{ id: "2NAsZLGtLGo", title: "Video 57" },
+{ id: "yFs_jHp-XN8", title: "Video 58" },
+{ id: "6hNAyfHP00o", title: "Video 59" },
+{ id: "RPjeF58VCf8", title: "Video 60" },
+{ id: "7E0rk2PXioA", title: "Video 61" },
+{ id: "Q7Z0rMZ4fmE", title: "Video 62" },
+{ id: "42dGw55_qNA", title: "Video 63" },
+{ id: "KIt76bBivSs", title: "Video 64" },
+{ id: "gG0LasiZ2Eo", title: "Video 65" },
+{ id: "7cSx08MNUTg", title: "Video 66" },
+{ id: "03WoJqpZ6f0", title: "Video 67" },
+{ id: "jSnZapMDYvI", title: "Video 68" },
+{ id: "glPPk5LnpGA", title: "Video 69" },
+{ id: "w6iPCikBYDg", title: "Video 70" },
+{ id: "VyBbbsf4WKA", title: "Video 71" },
+{ id: "gRw1z_wm64E", title: "Video 72" },
+{ id: "QbO3KvkYGXQ", title: "Video 73" },
+{ id: "IcfhsEzkhGA", title: "Video 74" },
+{ id: "ZtSeRGzM1uE", title: "Video 75" },
+{ id: "ngeOQIjKMSI", title: "Video 76" },
+{ id: "OuRFP0xq4p8", title: "Video 77" },
+{ id: "zRV1dbFFl44", title: "Video 78" }
     ];
     
     console.log("Reached here - step 1");
